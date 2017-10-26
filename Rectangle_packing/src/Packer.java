@@ -70,18 +70,28 @@ public class Packer {
 		}
 //<<----Logika--------------------------------------------------------------------->>//
 		Methods m = new Methods();
-		Rectangle r = rects.get(0);
-		m.putRectToCont(r, container, 0, 0);
-		/*
-		for(int i=0; i<contW; i++){
-			for(int j=0; j<contH; j++){
-				if(container[i][j]==0){
-					
-				}
+		m.putRectToCont(rects.get(0), container, 0, 0);
+		Rectangle r = rects.get(1);
+		boolean tryX;
+		int ix;
+		for(ix=0; ix<contW; ix++){
+			if(container[ix][0] == 0){
+				tryX=true;
+				break;
 			}
 		}
+		boolean fitX=true;
+		if(ix+r.width>=contW)
+			r.rotate();
+		if(ix+r.width>=contW){
+			System.out.println("cannot fit");
+			fitX=false;
+		}
+		if(fitX)
+			m.putRectToCont(r, container, ix+1, 0);
+
 		
-		*/
+		
 //<<----Kiiratas------------------------------------------------------------------->>//
 		// Print the results
 		for(int i = 0; i<contH; i++) {
@@ -98,8 +108,8 @@ public class Packer {
 
 	public static class Methods{
 		public void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
-			for(int i=x; i<tmp.width+x; i++){
-				for(int j=y; j<tmp.height+y; j++){
+			for(int i=x; i<tmp.height+x; i++){
+				for(int j=y; j<tmp.width+y; j++){
 					container[i][j] = tmp.id;
 				}
 			}
