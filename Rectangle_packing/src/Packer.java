@@ -9,20 +9,27 @@ import java.util.Comparator;
 
 public class Packer {
 
+	static ArrayList<Rectangle> rects;
+	 
+	// Container dimensions
+	static int contH, contW;
+	
+	static int currCoordX, currCoordY;
+	
 	public static void main(String[] args) throws IOException {
 		// Lista a teglalapoknak
-		ArrayList<Rectangle> rects = new ArrayList<>();
+		rects = new ArrayList<>();
 		
 		// Lista a beolvasott adatoknak, ezeket Parse-oljuk es toltjuk be beloluk az adatokat
 		ArrayList<String> input = new ArrayList<>();
 		
 		int itemCount;
 		
-		// Container dimensions
-		int contH, contW;
-		
 		// Container
 		int[][] container;
+		
+		currCoordX=0;
+		currCoordY=0;
 		
 //<<----Beolvasas------------------------------------------------------->>//
 		// FileInutStream-et atirni System.In-re!!!
@@ -71,42 +78,39 @@ public class Packer {
 //<<----Logika--------------------------------------------------------------------->>//
 		Methods m = new Methods();
 		m.putRectToCont(rects.get(0), container, 0, 0);
-		rects.get(1).rotate();
-		m.putRectToCont(rects.get(1), container, 3, 0);
-		m.putRectToCont(rects.get(2), container, 0, 3);
 		
-		
-		/*
-		boolean tryX = m.isFit(r, container, contW, contH);
-		
-		if(!tryX)
-		System.out.println(r.id +" "+ r.width +" "+ r.height);
-		r.rotate();
-		System.out.println(r.id +" "+ r.width +" "+ r.height);
-			*/
-		
-		
-		/*int ix;
-		for(ix=0; ix<contW; ix++){
-			if(container[ix][0] == 0){
-				tryX=true;
+		for(int i=0; i<rects.size(); i++){
+			if(m.isFit(rects.get(1), container, contW, contH)){
+				m.putRectToCont(rects.get(i), container, currCoordX, currCoordY);
+			}
+			else{
+				System.out.println("Failed!");
 				break;
 			}
 		}
-		boolean fitX=true;
-		if(ix+r.width>=contW)
-			r.rotate();
-		if(ix+r.width>=contW){
-			System.out.println("cannot fit");
-			fitX=false;
-		}
-		if(fitX)
-			m.putRectToCont(r, container, ix+1, 0);
-*/
+		/*Boolean van = false;
 		
+		m.Backtrack(0, container, van);
+		if(!van)
+			System.out.println("Failed!");
+		*/
 		
 //<<----Kiiratas------------------------------------------------------------------->>//
 		// Print the results
+		/*for(int i = 0; i<contH; i++) {
+			for(int j=0; j<contH; j++) {
+				if(j<contH - 1)
+					System.out.print(container[j][i] + "\t");
+				else
+					System.out.print(container[j][i]);
+			}
+			if(i<contH-1)
+				System.out.print("\n");
+		}*/
+		//printResult(container);
+	}
+
+	public static void printResult(int[][] container){
 		for(int i = 0; i<contH; i++) {
 			for(int j=0; j<contH; j++) {
 				if(j<contH - 1)
@@ -117,18 +121,112 @@ public class Packer {
 			if(i<contH-1)
 				System.out.print("\n");
 		}
+		System.out.println("\n------------------------------");
 	}
-
+	
 	public static class Methods{
+		
 		public void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
-			for(int i=x; i<tmp.width+x; i++){
-				for(int j=y; j<tmp.height+y; j++){
-					container[i][j] = tmp.id;
+			for(int n=x; n<tmp.width+x; n++){
+				for(int m=y; m<tmp.height+y; m++){
+					System.out.println("n: " + n + " m: " + m);
+					System.out.println("n felt: " + (x) + " m felt: " + (y));
+					container[n][m] = tmp.id;
+					printResult(container);
 				}
 			}
 		}
 		
 		public boolean isFit(Rectangle r, int[][] container, int w, int h){
+			int i=0;
+			int j=0;
+			boolean exit=false;
+			while(j<h && !exit){
+				if(container[i][j]==0){
+					currCoordX=i;
+					currCoordY=j;
+					break;
+				}
+				while(i<w){
+					if(container[i][j]==0){
+						currCoordX=i;
+						exit=true;
+						break;
+					}
+					if(!exit)
+						i++;
+				}
+				if(!exit)
+					j++;
+			}
+			if(i+r.width>w)
+				r.rotate();
+			if(i+r.width>w)
+				return false;
+			if(j+r.height>h)
+				return false;
+			
+			
+			
+			//putRectToCont(r, container, i, j);
+			return true;
+		}
+		
+		boolean Fk(int szint, Rectangle r, int[][] E){
+			return isFit(r, E, contW, contH);
+		}
+		
+		void Backtrack(int szint, int[][] E, Boolean van){
+			int i = 0;
+			while(!van && i < rects.size()){
+				i++;
+				if(Fk(szint, rects.get(i), E)){
+					//e-be rakni
+					if(szint == rects.size()){
+						van = true;
+					}else{
+						Backtrack(szint + 1, E, van);
+					}
+				}
+			}
+		}
+		
+		/*void BackTrack(int szint,boolean[] E) {
+            for (int i = 0; i <= 1; i++)
+            {
+                if (i == 0)
+                    E[szint] = true;
+                else
+                    E[szint] = false;
+
+                if (Fk(szint, E))
+                {
+                    if (szint == M.Length - 1)
+                    {
+                        if ((OraHossz(E) >= OraHossz(OPT)) && (OraAr(E) < legkisebbAr))
+                        {
+                            if(OraHossz(E) == 0)
+                            {
+                                throw new NincsElegHelyException();
+                            }
+                            for (int f = 0; f < E.Length; f++)
+                            {
+                                OPT[f] = E[f];
+                                E[f] = false;
+                            }
+                            legkisebbAr = OraAr(OPT);
+                            optimalisOrarend?.Invoke(OPT, legkisebbAr,M);
+                        }
+                    }
+                    else
+                    {
+                        BackTrack(szint + 1, ref E, ref OPT);
+                    }
+                }
+            }
+        }
+		/*
+		public int[] whereFit(Rectangle r, int[][] container, int w, int h){
 			int i=0;
 			int j=0;
 			while(j<h){
@@ -145,13 +243,15 @@ public class Packer {
 			if(i+r.width>w)
 				r.rotate();
 			if(i+r.width>w)
-				return false;
+				
 			if(j+r.height>h)
-				return false;
+				
+			int[]
 			
-			putRectToCont(r, container, i, j);
-			return true;
+			return new int[] = {i, j};
+			
 		}
+		*/
 	}
 	
 	public static class Rectangle {
