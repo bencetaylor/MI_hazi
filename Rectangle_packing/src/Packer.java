@@ -71,9 +71,22 @@ public class Packer {
 //<<----Logika--------------------------------------------------------------------->>//
 		Methods m = new Methods();
 		m.putRectToCont(rects.get(0), container, 0, 0);
-		Rectangle r = rects.get(1);
-		boolean tryX;
-		int ix;
+		rects.get(1).rotate();
+		m.putRectToCont(rects.get(1), container, 3, 0);
+		m.putRectToCont(rects.get(2), container, 0, 3);
+		
+		
+		/*
+		boolean tryX = m.isFit(r, container, contW, contH);
+		
+		if(!tryX)
+		System.out.println(r.id +" "+ r.width +" "+ r.height);
+		r.rotate();
+		System.out.println(r.id +" "+ r.width +" "+ r.height);
+			*/
+		
+		
+		/*int ix;
 		for(ix=0; ix<contW; ix++){
 			if(container[ix][0] == 0){
 				tryX=true;
@@ -89,17 +102,17 @@ public class Packer {
 		}
 		if(fitX)
 			m.putRectToCont(r, container, ix+1, 0);
-
+*/
 		
 		
 //<<----Kiiratas------------------------------------------------------------------->>//
 		// Print the results
 		for(int i = 0; i<contH; i++) {
-			for(int j=0; j<contW; j++) {
-				if(j<contW - 1)
-					System.out.print(container[i][j] + "\t");
+			for(int j=0; j<contH; j++) {
+				if(j<contH - 1)
+					System.out.print(container[j][i] + "\t");
 				else
-					System.out.print(container[i][j]);
+					System.out.print(container[j][i]);
 			}
 			if(i<contH-1)
 				System.out.print("\n");
@@ -108,11 +121,36 @@ public class Packer {
 
 	public static class Methods{
 		public void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
-			for(int i=x; i<tmp.height+x; i++){
-				for(int j=y; j<tmp.width+y; j++){
+			for(int i=x; i<tmp.width+x; i++){
+				for(int j=y; j<tmp.height+y; j++){
 					container[i][j] = tmp.id;
 				}
 			}
+		}
+		
+		public boolean isFit(Rectangle r, int[][] container, int w, int h){
+			int i=0;
+			int j=0;
+			while(j<h){
+				if(container[i][j]==0)
+					break;
+				while(i<w){
+					if(container[i][j]==0){
+						break;
+					}
+					i++;
+				}
+				j++;
+			}
+			if(i+r.width>w)
+				r.rotate();
+			if(i+r.width>w)
+				return false;
+			if(j+r.height>h)
+				return false;
+			
+			putRectToCont(r, container, i, j);
+			return true;
 		}
 	}
 	
