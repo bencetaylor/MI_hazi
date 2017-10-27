@@ -11,9 +11,9 @@ public class Main {
 
 	static ArrayList<Rectangle> rects;
 	 
-	// Container dimensions
+	// Tarolo meretei
 	static int contH, contW;
-	
+	// Koordinatak a beilleszteshez
 	static int currCoordX, currCoordY;
 	
 	public static void main(String[] args) throws IOException {
@@ -25,15 +25,17 @@ public class Main {
 		
 		int itemCount;
 		
-		// Container
+		// Tarolo
 		int[][] container;
 		
+		// Beallitjuk a kezdo poziciot a taroloban
 		currCoordX=0;
 		currCoordY=0;
 		
-//<<----Beolvasas------------------------------------------------------->>//
-		// FileInutStream-et atirni System.In-re!!!
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("test2.txt")));
+		/**
+		 * Beolvasas
+		 */
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("test7.txt")));
 		try{
     		while(true){
     			String line = br.readLine();
@@ -47,17 +49,13 @@ public class Main {
 			System.out.println(e);
 		}
 		
-		// Beallitjuk a kontener meretet
+		// Beallitjuk a tarolo meretet
 		String[] dimStr = new String[2];
 		dimStr = input.get(0).split("\t");
 		contW = Integer.parseInt(dimStr[0]);
 		contH = Integer.parseInt(dimStr[1]);
-		// Load the container with 0-s
-		container = new int[contH][contW];
-		for(int i = 0; i<contH; i++) {
-			for(int j=0; j<contW; j++)
-				container[i][j] = 0;
-		}
+		// Majd letrehozzuk a tarolot
+		container = new int[contW][contH];
 		
 		// Megnezzuk mennyi teglalap lesz
 		itemCount = Integer.parseInt(input.get(1));
@@ -72,40 +70,58 @@ public class Main {
 				rects.add(new Rectangle(Integer.parseInt(rectData[0]), Integer.parseInt(rectData[1])));
 		}
 		
-		// Sort the list
-		Collections.sort(rects, new AreaComparator());
-		/*
-		//Kiirjuk a teglalapok ID-ját
-		for (Rectangle r : rects) {
-			r.print();
-		}*/
-//<<----Logika--------------------------------------------------------------------->>//
+		// Rendezzuk a listat eloszor szelesseg, ha az egyenlo akkor magassag szerint
+		Collections.sort(rects, new XComparator());
 		
+		/**
+		 * Logika
+		 */
 		boolean succes=false;
+		// Vegigmegyunk a teglalapokon es megprobaljuk elhelyezni oket a taroloban
 		for(int i=0; i<rects.size();i++){
+			// Ha sikerul, megyunk tovabb
 			succes = isFit(rects.get(i), container, contW, contH);
-			/*if(!succes){
-				System.out.println("Failed");
-				return;
-			}*/
+			// Ha nem, elforgatjuk es ujra probaljuk
+			if(!succes){
+				rects.get(i).rotate();
+				succes = isFit(rects.get(i), container, contW, contH);
+			}
+			// Ha igy sem, akkor kilepunk
+			if(!succes){
+				break;
+			}
 		}
-	
-		/*
-		Boolean van = false;
-  		
-		Backtrack(0, container, van);
-		if(!van)
-			System.out.println("Failed!");
-		 	*/	
-		
-		
-//<<----Kiiratas------------------------------------------------------------------->>//
-		// Print the results
+		// Ha az elozo ciklusban nem sikerult beilleszteni mindent, elforgatjuk az elso elemet es ezek utan ujra probalkozunk
+		if(!succes){
+			rects.get(0).rotate();
+			//Collections.sort(rects, new XComparator());
+			container = new int[contW][contH];
+			
+			for(int i=0; i<rects.size();i++){
+				succes = isFit(rects.get(i), container, contW, contH);
+				if(!succes){
+					rects.get(i).rotate();
+					succes = isFit(rects.get(i), container, contW, contH);
+				}
+				// Ha igy sem sikerult, hibat jelzunk, majd kilepunk
+				if(!succes){
+					System.out.println("Failed: " + rects.get(i).id);
+					rects.get(i).print();
+					return;
+				}
+			}
+		}
+		/**
+		 * Kiiratas
+		 */
 		printResult(container);
 	}
 
-//<<----Segedfuggvenyek------------------------------------------------------------>>//
-	
+	/**
+	 * Segedfuggvenyek
+	 */
+
+	//Kiirja a kapott tarolo elemeit
 	public static void printResult(int[][] container){
 		for(int i = 0; i<contH; i++) {
 			for(int j=0; j<contH; j++) {
@@ -120,6 +136,7 @@ public class Main {
 	}
 	
 	public static void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
+		// Berakjuk a kapott teglalapot a taroloba a megadott koordinatakra
 		for(int n=x; n<tmp.width+x; n++){
 			for(int m=y; m<tmp.height+y; m++){
 				container[n][m] = tmp.id;
@@ -128,45 +145,39 @@ public class Main {
 	}
 	
 	public static boolean isFit(Rectangle r, int[][] container, int w, int h){
-		boolean exit=false;
 		
-		for(int i = 0; i<h &&!exit; i++){
+		boolean exit=false;
+		// Vegigmegyunk a tarolon es megnezzuk hogy hova tudnank berakni a teglalapot. Ha talalunk helyet kilepunk a ciklusbol es belerakjuk.
+		for(int i = 0; i<h && !exit; i++){
 			for(int j = 0; j<w && !exit; j++){
 				if(container[j][i]==0){
 					currCoordX=j;
 					currCoordY=i;
-					exit=true;
+					exit=checkCoord(r, currCoordX, currCoordY, container);
 				}
 			}
 		}
-		if(currCoordX+r.width>w)
-			r.rotate();
-		if(currCoordX+r.width>w)
-			return false;
-		else if(currCoordY+r.height>h)
-			return false;
-		else{
+		if(exit){
 			putRectToCont(r, container, currCoordX, currCoordY);
 			return true;
 		}
+		else
+			return false;
 	}
 	
-	public static boolean Fk(int szint, Rectangle r, int[][] E){
-		 return isFit(r, E, contW, contH);
-	}
-		 		
-	public static void Backtrack(int szint, int[][] E, Boolean van){
-		for(int i=0; i<rects.size() && !van; i++){
-			if(Fk(szint, rects.get(i), E)){
-				//e-be rakni
-				if(szint == rects.size()){
-			 		van = true;
-			 	}
-				else {
-			 		Backtrack(szint + 1, E, van);
-				}
-			}
+	public static boolean checkCoord(Rectangle r, int X, int Y, int[][] container){
+		// Ha a teglalap kilogna a tarolobol, nem tesszuk bele
+		if((X+r.width) > contW || (Y+r.height) > contH){
+			return false;
 		}
+		// Megnezzuk van e mar valami azon a helyen ahova a teglalapot tenni szeretnenk
+		for(int i = Y; i<Y+r.height; i++){
+			for(int j=X; j< X+r.width; j++)
+				if(container[j][i] != 0)
+					return false;
+		}
+		// Ha nincs, mehet! :)
+		return true;
 	}
 	
 	public static class Rectangle {
@@ -179,7 +190,7 @@ public class Main {
 			height=_height;
 			id = counter++;
 		}
-		
+		//Elforgatja a teglalapot (megcsereli a ket oldalt)
 		public void rotate(){
 			int tmp = width;
 			width = height;
@@ -187,9 +198,10 @@ public class Main {
 		}
 		
 		public void print(){
-			System.out.println("id: "+id+" w: "+width+" h: "+height);
+			System.out.println("id: "+id+"\tw: "+width+"\th: "+height);
 		}
-	}
+	}	
+	
 	
 	public static class XComparator implements Comparator<Rectangle>{
 		
@@ -221,7 +233,6 @@ public class Main {
 			if(res==0){
 				res = Integer.compare(r2.height*r2.width, r1.height*r1.width);
 			}
-			
 			return res;
 		}
 	}
