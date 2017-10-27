@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class Packer {
+public class Main {
 
 	static ArrayList<Rectangle> rects;
 	 
@@ -33,7 +33,7 @@ public class Packer {
 		
 //<<----Beolvasas------------------------------------------------------->>//
 		// FileInutStream-et atirni System.In-re!!!
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("in.txt")));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("test2.txt")));
 		try{
     		while(true){
     			String line = br.readLine();
@@ -68,46 +68,28 @@ public class Packer {
 			rects.add(new Rectangle(Integer.parseInt(rectData[0]), Integer.parseInt(rectData[1])));
 		}
 		
-		// Sort the list by x
-		Collections.sort(rects, new XComparator());
-		
+		// Sort the list
+		Collections.sort(rects, new AreaComparator());
+		/*
 		//Kiirjuk a teglalapok ID-ját
 		for (Rectangle r : rects) {
-			System.out.println(r.id);
-		}
+			r.print();
+		}*/
 //<<----Logika--------------------------------------------------------------------->>//
-		Methods m = new Methods();
-		m.putRectToCont(rects.get(0), container, 0, 0);
 		
-		for(int i=0; i<rects.size(); i++){
-			if(m.isFit(rects.get(1), container, contW, contH)){
-				m.putRectToCont(rects.get(i), container, currCoordX, currCoordY);
-			}
-			else{
-				System.out.println("Failed!");
-				break;
-			}
+		boolean succes=false;
+		for(int i=0; i<rects.size();i++){
+			succes = isFit(rects.get(i), container, contW, contH);
+			/*if(!succes){
+				System.out.println("Failed");
+				return;
+			}*/
 		}
-		/*Boolean van = false;
 		
-		m.Backtrack(0, container, van);
-		if(!van)
-			System.out.println("Failed!");
-		*/
 		
 //<<----Kiiratas------------------------------------------------------------------->>//
 		// Print the results
-		/*for(int i = 0; i<contH; i++) {
-			for(int j=0; j<contH; j++) {
-				if(j<contH - 1)
-					System.out.print(container[j][i] + "\t");
-				else
-					System.out.print(container[j][i]);
-			}
-			if(i<contH-1)
-				System.out.print("\n");
-		}*/
-		//printResult(container);
+		printResult(container);
 	}
 
 	public static void printResult(int[][] container){
@@ -121,139 +103,75 @@ public class Packer {
 			if(i<contH-1)
 				System.out.print("\n");
 		}
-		System.out.println("\n------------------------------");
 	}
 	
+	public static void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
+		for(int n=x; n<tmp.width+x; n++){
+			for(int m=y; m<tmp.height+y; m++){
+				container[n][m] = tmp.id;
+			}
+		}
+	}
+	
+	public static boolean isFit(Rectangle r, int[][] container, int w, int h){
+		boolean exit=false;
+		
+		for(int i = 0; i<h &&!exit; i++){
+			for(int j = 0; j<w && !exit; j++){
+				if(container[j][i]==0){
+					currCoordX=j;
+					currCoordY=i;
+					exit=true;
+				}
+			}
+		}
+		if(currCoordX+r.width>w)
+			r.rotate();
+		if(currCoordX+r.width>w)
+			return false;
+		else if(currCoordY+r.height>h)
+			return false;
+		else{
+			putRectToCont(r, container, currCoordX, currCoordY);
+			return true;
+		}
+	}
+	/*
 	public static class Methods{
 		
 		public void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
 			for(int n=x; n<tmp.width+x; n++){
 				for(int m=y; m<tmp.height+y; m++){
-					System.out.println("n: " + n + " m: " + m);
-					System.out.println("n felt: " + (x) + " m felt: " + (y));
 					container[n][m] = tmp.id;
-					printResult(container);
 				}
 			}
 		}
 		
 		public boolean isFit(Rectangle r, int[][] container, int w, int h){
-			int i=0;
-			int j=0;
 			boolean exit=false;
-			while(j<h && !exit){
-				if(container[i][j]==0){
-					currCoordX=i;
-					currCoordY=j;
-					break;
-				}
-				while(i<w){
-					if(container[i][j]==0){
-						currCoordX=i;
+			
+			for(int i = 0; i<h &&!exit; i++){
+				for(int j = 0; j<w && !exit; j++){
+					if(container[j][i]==0){
+						currCoordX=j;
+						currCoordY=i;
 						exit=true;
-						break;
 					}
-					if(!exit)
-						i++;
 				}
-				if(!exit)
-					j++;
 			}
-			if(i+r.width>w)
+			if(currCoordX+r.width>w)
 				r.rotate();
-			if(i+r.width>w)
+			if(currCoordX+r.width>w)
 				return false;
-			if(j+r.height>h)
+			else if(currCoordY+r.height>h)
 				return false;
-			
-			
-			
-			//putRectToCont(r, container, i, j);
-			return true;
-		}
-		
-		boolean Fk(int szint, Rectangle r, int[][] E){
-			return isFit(r, E, contW, contH);
-		}
-		
-		void Backtrack(int szint, int[][] E, Boolean van){
-			int i = 0;
-			while(!van && i < rects.size()){
-				i++;
-				if(Fk(szint, rects.get(i), E)){
-					//e-be rakni
-					if(szint == rects.size()){
-						van = true;
-					}else{
-						Backtrack(szint + 1, E, van);
-					}
-				}
+			else{
+				putRectToCont(r, container, currCoordX, currCoordY);
+				return true;
 			}
 		}
-		
-		/*void BackTrack(int szint,boolean[] E) {
-            for (int i = 0; i <= 1; i++)
-            {
-                if (i == 0)
-                    E[szint] = true;
-                else
-                    E[szint] = false;
-
-                if (Fk(szint, E))
-                {
-                    if (szint == M.Length - 1)
-                    {
-                        if ((OraHossz(E) >= OraHossz(OPT)) && (OraAr(E) < legkisebbAr))
-                        {
-                            if(OraHossz(E) == 0)
-                            {
-                                throw new NincsElegHelyException();
-                            }
-                            for (int f = 0; f < E.Length; f++)
-                            {
-                                OPT[f] = E[f];
-                                E[f] = false;
-                            }
-                            legkisebbAr = OraAr(OPT);
-                            optimalisOrarend?.Invoke(OPT, legkisebbAr,M);
-                        }
-                    }
-                    else
-                    {
-                        BackTrack(szint + 1, ref E, ref OPT);
-                    }
-                }
-            }
-        }
-		/*
-		public int[] whereFit(Rectangle r, int[][] container, int w, int h){
-			int i=0;
-			int j=0;
-			while(j<h){
-				if(container[i][j]==0)
-					break;
-				while(i<w){
-					if(container[i][j]==0){
-						break;
-					}
-					i++;
-				}
-				j++;
-			}
-			if(i+r.width>w)
-				r.rotate();
-			if(i+r.width>w)
-				
-			if(j+r.height>h)
-				
-			int[]
-			
-			return new int[] = {i, j};
-			
-		}
-		*/
 	}
-	
+	*/
 	public static class Rectangle {
 		public int width, height, id;
 		//Auto-inkremens amibol az id-t generaljuk
@@ -269,6 +187,10 @@ public class Packer {
 			int tmp = width;
 			width = height;
 			height = tmp;
+		}
+		
+		public void print(){
+			System.out.println("id: "+id+" w: "+width+" h: "+height);
 		}
 	}
 	
