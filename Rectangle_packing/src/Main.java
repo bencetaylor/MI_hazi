@@ -65,7 +65,11 @@ public class Main {
 		// Beolvassuk a teglalapokat
 		for(int i = 0; i < itemCount; i++){
 			String[] rectData = input.get(i+2).split("\t");
-			rects.add(new Rectangle(Integer.parseInt(rectData[0]), Integer.parseInt(rectData[1])));
+			// Elforgatjuk a teglalapot, hogy mindig a hosszabb oldal legyen az X
+			if(Integer.parseInt(rectData[0]) < Integer.parseInt(rectData[1]))
+				rects.add(new Rectangle(Integer.parseInt(rectData[1]), Integer.parseInt(rectData[0])));
+			else
+				rects.add(new Rectangle(Integer.parseInt(rectData[0]), Integer.parseInt(rectData[1])));
 		}
 		
 		// Sort the list
@@ -85,6 +89,14 @@ public class Main {
 				return;
 			}*/
 		}
+	
+		/*
+		Boolean van = false;
+  		
+		Backtrack(0, container, van);
+		if(!van)
+			System.out.println("Failed!");
+		 	*/	
 		
 		
 //<<----Kiiratas------------------------------------------------------------------->>//
@@ -92,6 +104,8 @@ public class Main {
 		printResult(container);
 	}
 
+//<<----Segedfuggvenyek------------------------------------------------------------>>//
+	
 	public static void printResult(int[][] container){
 		for(int i = 0; i<contH; i++) {
 			for(int j=0; j<contH; j++) {
@@ -136,42 +150,25 @@ public class Main {
 			return true;
 		}
 	}
-	/*
-	public static class Methods{
-		
-		public void putRectToCont(Rectangle tmp, int[][] container,int x, int y){
-			for(int n=x; n<tmp.width+x; n++){
-				for(int m=y; m<tmp.height+y; m++){
-					container[n][m] = tmp.id;
+	
+	public static boolean Fk(int szint, Rectangle r, int[][] E){
+		 return isFit(r, E, contW, contH);
+	}
+		 		
+	public static void Backtrack(int szint, int[][] E, Boolean van){
+		for(int i=0; i<rects.size() && !van; i++){
+			if(Fk(szint, rects.get(i), E)){
+				//e-be rakni
+				if(szint == rects.size()){
+			 		van = true;
+			 	}
+				else {
+			 		Backtrack(szint + 1, E, van);
 				}
-			}
-		}
-		
-		public boolean isFit(Rectangle r, int[][] container, int w, int h){
-			boolean exit=false;
-			
-			for(int i = 0; i<h &&!exit; i++){
-				for(int j = 0; j<w && !exit; j++){
-					if(container[j][i]==0){
-						currCoordX=j;
-						currCoordY=i;
-						exit=true;
-					}
-				}
-			}
-			if(currCoordX+r.width>w)
-				r.rotate();
-			if(currCoordX+r.width>w)
-				return false;
-			else if(currCoordY+r.height>h)
-				return false;
-			else{
-				putRectToCont(r, container, currCoordX, currCoordY);
-				return true;
 			}
 		}
 	}
-	*/
+	
 	public static class Rectangle {
 		public int width, height, id;
 		//Auto-inkremens amibol az id-t generaljuk
@@ -220,7 +217,12 @@ public class Main {
 		
 		@Override
 		public int compare(Rectangle r1, Rectangle r2) {
-			return Integer.compare(r2.height*r2.width, r1.height*r1.width);
+			int res = Integer.compare(r2.width, r1.width);
+			if(res==0){
+				res = Integer.compare(r2.height*r2.width, r1.height*r1.width);
+			}
+			
+			return res;
 		}
 	}
 }
