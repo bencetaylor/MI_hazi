@@ -13,10 +13,10 @@ public class NNSolutionOne {
 		Random rand = new Random();
 		double result;
 		
-		/*for(int i = 0; i<10; i++) {
+		for(int i = 0; i<10; i++) {
 			result = rand.nextGaussian()*0.1;
 			System.out.println(result);
-		}*/
+		}
 		
 		ArrayList<String> input = new ArrayList<>();
 		
