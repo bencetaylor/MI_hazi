@@ -9,21 +9,17 @@ public class Neuron {
 	
 	private int count = 0;
 	
-	public Neuron(int inputCount) {
-		bias = 0;
+	public Neuron(int inputCount, double[] _weights, double _bias) {
+		bias = _bias;
 		output = 0;
-		inputWeight = new double[inputCount];
+		inputWeight = _weights;
 		
-		Random rand = new Random();
+		/*Random rand = new Random();
 		for(int i = 0; i<inputCount; i++)
 			inputWeight[i] = rand.nextGaussian()*0.1;
-		
+		*/
 		id=count++;
 	}
-	/*
-	public void AddWeight(double weight) {
-		inputWeight.add(weight);
-	}*/
 	
 	public void setWeights(double[] weight) {
 		if(weight.length != inputWeight.length)
