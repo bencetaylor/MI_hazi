@@ -28,6 +28,30 @@ public class Neuron {
 			inputWeight = weight;
 	}
 	
+	public double calculateOutput(double[] input) {
+		if(input.length != inputWeight.length) {
+			System.out.println("Error: input number & weights number not equal!");
+		}
+		double res = 0;
+		for(int i=0; i<input.length; i++) {
+			res += input[i]*inputWeight[i];
+		}
+
+		output = res+bias;
+		
+		if(output<0)
+			return 0;
+		else
+			return output;
+	}
+	/*
+	private double ReLu(double val) {
+		if(val<0)
+			return 0.0;
+		else
+			return val;
+	}
+	*/
 	public void print() {
 		for(int i=0; i<inputWeight.length; i++)
 			System.out.print(inputWeight[i]+",");

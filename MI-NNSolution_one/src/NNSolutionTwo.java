@@ -18,6 +18,7 @@ public class NNSolutionTwo {
 		int inputNumber;
 		//Neuronok szama
 		int neuronCount=0;
+		ArrayList<Neuron[]> network = new ArrayList<>();
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("input2.txt")));
 		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -42,12 +43,7 @@ public class NNSolutionTwo {
 			architecture[i] = Integer.parseInt(architectureString[i]);
 			if(i>=1)
 				neuronCount+=architecture[i];
-			if(i<architectureString.length-1)
-				System.out.print(architecture[i]+",");
-			else
-				System.out.print(architecture[i]);
 		}
-		System.out.print("\n");
 		
 		//Bemenetek szama
 		inputNumber = architecture[0];
@@ -60,41 +56,46 @@ public class NNSolutionTwo {
 				weight[j]=Double.parseDouble(weightStr[j]);
 			}
 			weightList.add(weight);
-			bias.add(Double.parseDouble(weightStr[weightStr.length-1]));
-				
+			bias.add(Double.parseDouble(weightStr[weightStr.length-1]));	
 		}
 		
-		
-		
 //<-----Neuronok letrehozasa------------------------------------------------------------------------------------------------------------------>
-		
-		ArrayList<Neuron> neuronList = new ArrayList<>();
 		
 		int weightListIndex=0;
 		int biasListIndex=0;
 		
 		for(int i=1; i<architecture.length; i++) {
+			Neuron[] layer = new Neuron[architecture[i]];
 			for(int j=0; j<architecture[i]; j++) {
-				neuronList.add(new Neuron(architecture[i-1], weightList.get(weightListIndex++), bias.get(biasListIndex++)));
+				layer[j]=new Neuron(architecture[i-1], weightList.get(weightListIndex++), bias.get(biasListIndex++));
 				//weightListIndex++;
 				//biasListIndex++;
 			}
+			network.add(layer);
+		}
+//<-----Kimenetek szamitasa------------------------------------------------------------------------------------------------------------------>
+
+		double[] inputs = {0.0, 1.0};
+		double[] layer1outputs = new double[network.get(0).length];
+		
+		for(int i=0; i<layer1outputs.length; i++) {
+			layer1outputs[i] = network.get(0)[0].calculateOutput(inputs);
 		}
 		
-		for(int i=0; i<neuronList.size(); i++) {
-			if(i<neuronList.size()-1) {
-				neuronList.get(i).print();
-				System.out.print("\n");
-			}
+		printWeight(layer1outputs, 000);
+		
+//<-----Kiiratas------------------------------------------------------------------------------------------------------------------>
+	/*
+		for(int i=0; i<architecture.length; i++) {
+			if(i<architecture.length-1)
+				System.out.print(architecture[i]+",");
 			else
-				neuronList.get(i).print();
+				System.out.print(architecture[i]);
 		}
-		/*System.out.print("\n\n");
+		System.out.print("\n");
 		
-		for(int i=0; i<weightList.size(); i++) {
-			printWeight(weightList.get(i), bias.get(i));
-		}*/
-		
+		printNetwork(network);
+		*/
 	}
 	
 	public static double[] fillRandom(int size) {
@@ -106,11 +107,20 @@ public class NNSolutionTwo {
 		
 		return result;
 	}
+	
+	public static void printNetwork(ArrayList<Neuron[]> network) {
+		for(int i=0; i<network.size(); i++) {
+			for (int j=0; j<network.get(i).length; j++){
+				network.get(i)[j].print();
+				System.out.print("\n");
+			}
+		}
+	}
 
 	public static void printWeight(double[] weight, double bias) {
 		for(int i=0; i<weight.length; i++)
 			System.out.print(weight[i]+",");
-		System.out.print(bias+"\n");
+//		System.out.print(bias+"\n");
 	}
 	
 }
