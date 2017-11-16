@@ -24,7 +24,7 @@ public class NNSolutionTwo {
 		ArrayList<double[]> outputs = new ArrayList<>();
 		ArrayList<double[]> inputs = new ArrayList<>();
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("input2.txt")));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("input3.txt")));
 		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
 	   		while(true){
@@ -77,19 +77,7 @@ public class NNSolutionTwo {
 			}
 			inputs.add(inputLine);
 		}
-		
-		
-		// TODO for ciklussal minden szamitas vegen atadni a következo bemenetet
-		/*for(i...){
-		 * 	output.set(0, inputs.get(i);
-		 * }
-		 * */
-		outputs.set(0, inputs.get(0));
-		/*
-		for(int i=0; i<outputs.size(); i++){
-			System.out.println(outputs.get(i).length);
-		}*/
-		
+
 //<-----Neuronok letrehozasa------------------------------------------------------------------------------------------------------------------>
 		
 		int weightListIndex=0;
@@ -104,8 +92,28 @@ public class NNSolutionTwo {
 			}
 			network.add(layer);
 		}
+		
+//<-----Kiiratas------------------------------------------------------------------------------------------------------------------>
+
+		for(int i=0; i<architecture.length; i++) {
+			if(i<architecture.length-1)
+				System.out.print(architecture[i]+",");
+			else
+				System.out.print(architecture[i]);
+		}
+		System.out.print("\n");
+		
+		printNetwork(network);
+		
+		System.out.println(inputcount);
+				
+		
 //<-----Kimenetek szamitasa es kiirasa------------------------------------------------------------------------------------------------------------------>
 
+		outputs.set(0, inputs.get(0));
+		
+		double[] results = new double[inputcount];
+		
 		for(int x=0; x<inputs.size(); x++){
 			outputs.set(0, inputs.get(x));
 			for(int i=0; i<network.size(); i++){
@@ -116,21 +124,16 @@ public class NNSolutionTwo {
 				outputs.set(i+1, result);
 			}
 			System.out.println(outputs.get(outputs.size()-1)[0]);
+			//results[x]=outputs.get(outputs.size()-1)[0];
 		}
-		
-		
-//<-----Kiiratas------------------------------------------------------------------------------------------------------------------>
-	/*
-		for(int i=0; i<architecture.length; i++) {
-			if(i<architecture.length-1)
-				System.out.print(architecture[i]+",");
+		/*
+		for(int i=0; i<results.length; i++) {
+			if(i<results.length-1)
+				System.out.println(results[i]);
 			else
-				System.out.print(architecture[i]);
-		}
-		System.out.print("\n");
+				System.out.print(results[i]);
+		}*/
 		
-		printNetwork(network);
-		*/
 	}
 	
 	public static double[] fillRandom(int size) {
@@ -155,7 +158,6 @@ public class NNSolutionTwo {
 	public static void printWeight(double[] weight, double bias) {
 		for(int i=0; i<weight.length; i++)
 			System.out.print(weight[i]+",");
-//		System.out.print(bias+"\n");
 	}
 	
 }
