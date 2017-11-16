@@ -13,11 +13,6 @@ public class Neuron {
 		bias = _bias;
 		output = 0;
 		inputWeight = _weights;
-		
-		/*Random rand = new Random();
-		for(int i = 0; i<inputCount; i++)
-			inputWeight[i] = rand.nextGaussian()*0.1;
-		*/
 		id=count++;
 	}
 	
@@ -39,19 +34,12 @@ public class Neuron {
 
 		output = res+bias;
 		
-		if(output<0)
+		if(output<=0)
 			return 0;
 		else
 			return output;
 	}
-	/*
-	private double ReLu(double val) {
-		if(val<0)
-			return 0.0;
-		else
-			return val;
-	}
-	*/
+	
 	public void print() {
 		for(int i=0; i<inputWeight.length; i++)
 			System.out.print(inputWeight[i]+",");

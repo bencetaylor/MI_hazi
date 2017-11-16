@@ -9,16 +9,20 @@ import java.util.Random;
 public class NNSolutionTwo {
 
 	public static void main(String[] args) throws IOException {
-		ArrayList<String> input = new ArrayList<>();
+		ArrayList<String> inputStr = new ArrayList<>();
 		//Sulyok
 		ArrayList<double[]> weightList = new ArrayList<>();
 		//Bias ertekek
 		ArrayList<Double> bias = new ArrayList<>();
 		//Bemenetek szama
-		int inputNumber;
+		int inputLayerNeurons;
 		//Neuronok szama
 		int neuronCount=0;
+		
+		
 		ArrayList<Neuron[]> network = new ArrayList<>();
+		ArrayList<double[]> outputs = new ArrayList<>();
+		ArrayList<double[]> inputs = new ArrayList<>();
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("input2.txt")));
 		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -27,7 +31,7 @@ public class NNSolutionTwo {
 	   			String line = br.readLine();
 	   			if(line == null)
 	   				break;
-	   			input.add(line);
+	   			inputStr.add(line);
 	   		}
 	   		br.close();
 		}
@@ -36,7 +40,7 @@ public class NNSolutionTwo {
 		}
 		
 		//Architektura init
-		String[] architectureString = input.get(0).split(",");
+		String[] architectureString = inputStr.get(0).split(",");
 		int[] architecture = new int[architectureString.length];
 		
 		for(int i=0; i<architectureString.length; i++) {
@@ -45,12 +49,12 @@ public class NNSolutionTwo {
 				neuronCount+=architecture[i];
 		}
 		
-		//Bemenetek szama
-		inputNumber = architecture[0];
+		//Bemeneti reteg elemeinek szama
+		inputLayerNeurons = architecture[0];
 		
 		//1-tol megyunk a neuronok szama+a-ig mert az elso sor volt az architektura, innentol minden sorban egy neuron suly és bias ertekei lesznek
 		for(int i=1; i<neuronCount+1; i++) {
-			String[] weightStr = input.get(i).split(",");
+			String[] weightStr = inputStr.get(i).split(",");
 			double[] weight = new double[weightStr.length-1];
 			for(int j=0; j<weightStr.length-1; j++) {
 				weight[j]=Double.parseDouble(weightStr[j]);
@@ -58,6 +62,33 @@ public class NNSolutionTwo {
 			weightList.add(weight);
 			bias.add(Double.parseDouble(weightStr[weightStr.length-1]));	
 		}
+		//letrehozzuk a kimeneti ertekeket tarolo listat
+		for(int i=0; i<architecture.length; i++){
+			outputs.add(new double[architecture[i]]);
+		}
+		//Bemenetek szama
+		int inputcount = Integer.parseInt(inputStr.get(neuronCount+1));
+		//Bemenetek beolvasasa
+		for(int i=neuronCount+2; i<neuronCount+2+inputcount; i++){
+			String[] tmp = inputStr.get(i).split(",");
+			double[] inputLine = new double[tmp.length];
+			for(int j=0; j<tmp.length; j++){
+				inputLine[j] = Double.parseDouble(tmp[j]);
+			}
+			inputs.add(inputLine);
+		}
+		
+		
+		// TODO for ciklussal minden szamitas vegen atadni a következo bemenetet
+		/*for(i...){
+		 * 	output.set(0, inputs.get(i);
+		 * }
+		 * */
+		outputs.set(0, inputs.get(0));
+		/*
+		for(int i=0; i<outputs.size(); i++){
+			System.out.println(outputs.get(i).length);
+		}*/
 		
 //<-----Neuronok letrehozasa------------------------------------------------------------------------------------------------------------------>
 		
@@ -73,16 +104,20 @@ public class NNSolutionTwo {
 			}
 			network.add(layer);
 		}
-//<-----Kimenetek szamitasa------------------------------------------------------------------------------------------------------------------>
+//<-----Kimenetek szamitasa es kiirasa------------------------------------------------------------------------------------------------------------------>
 
-		double[] inputs = {0.0, 1.0};
-		double[] layer1outputs = new double[network.get(0).length];
-		
-		for(int i=0; i<layer1outputs.length; i++) {
-			layer1outputs[i] = network.get(0)[0].calculateOutput(inputs);
+		for(int x=0; x<inputs.size(); x++){
+			outputs.set(0, inputs.get(x));
+			for(int i=0; i<network.size(); i++){
+				double[] result = new double[network.get(i).length];
+				for(int j=0; j<network.get(i).length; j++){
+					result[j]=network.get(i)[j].calculateOutput(outputs.get(i));
+				}
+				outputs.set(i+1, result);
+			}
+			System.out.println(outputs.get(outputs.size()-1)[0]);
 		}
 		
-		printWeight(layer1outputs, 000);
 		
 //<-----Kiiratas------------------------------------------------------------------------------------------------------------------>
 	/*
