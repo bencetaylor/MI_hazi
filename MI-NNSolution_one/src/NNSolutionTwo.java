@@ -24,7 +24,7 @@ public class NNSolutionTwo {
 		ArrayList<double[]> outputs = new ArrayList<>();
 		ArrayList<double[]> inputs = new ArrayList<>();
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("input3.txt")));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("input4.txt")));
 		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try{
 	   		while(true){
@@ -94,7 +94,7 @@ public class NNSolutionTwo {
 		}
 		
 //<-----Kiiratas------------------------------------------------------------------------------------------------------------------>
-
+/*
 		for(int i=0; i<architecture.length; i++) {
 			if(i<architecture.length-1)
 				System.out.print(architecture[i]+",");
@@ -104,7 +104,7 @@ public class NNSolutionTwo {
 		System.out.print("\n");
 		
 		printNetwork(network);
-		
+		*/
 		System.out.println(inputcount);
 				
 		
@@ -118,13 +118,26 @@ public class NNSolutionTwo {
 			outputs.set(0, inputs.get(x));
 			for(int i=0; i<network.size(); i++){
 				double[] result = new double[network.get(i).length];
-				for(int j=0; j<network.get(i).length; j++){
-					result[j]=network.get(i)[j].calculateOutput(outputs.get(i));
+				if(i<network.size()-1) {
+					for(int j=0; j<network.get(i).length; j++){
+						result[j]=network.get(i)[j].calculateOutput(outputs.get(i));
+						if(result[j]<=0)
+							result[j]=0;
+					}
+				} else {
+					for(int j=0; j<network.get(i).length; j++){
+						result[j]=network.get(i)[j].calculateOutput(outputs.get(i));
+					}
 				}
 				outputs.set(i+1, result);
 			}
-			System.out.println(outputs.get(outputs.size()-1)[0]);
-			//results[x]=outputs.get(outputs.size()-1)[0];
+			for(int k=0; k<outputs.get(outputs.size()-1).length; k++) {
+				if(k<outputs.get(outputs.size()-1).length-1)
+					System.out.print(outputs.get(outputs.size()-1)[k] + ",");
+				else
+					System.out.println(outputs.get(outputs.size()-1)[k]);
+			}
+			
 		}
 		/*
 		for(int i=0; i<results.length; i++) {

@@ -34,10 +34,13 @@ public class Neuron {
 
 		output = res+bias;
 		
+		return output;
+		/*
 		if(output<=0)
 			return 0;
 		else
 			return output;
+	*/
 	}
 	
 	public void print() {
