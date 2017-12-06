@@ -12,6 +12,7 @@ public class Main {
 	static int usersCount;
 	static int movieCount;
 	static double[] usersAvrRating;
+	static double[][] predicateR;
 	
 	public static void main(String[] args) throws IOException {
 		
@@ -36,6 +37,18 @@ public class Main {
 			R[inputRatings[i][0]][inputRatings[i][1]]=inputRatings[i][2];
 		}
 		
+		// Kimeneti MX a prdikált értékeknek ahol a már értékelt filmek negatívak
+		predicateR = new double[usersCount][movieCount];
+		for(int i=0; i<usersCount; i++){
+			for(int j=0; j<movieCount; j++){
+				if(R[i][j] != 0)
+					predicateR[i][j] = -R[i][j];
+				else
+					predicateR[i][j] = 0.0;
+			}
+		}
+	
+		// User avarage rating
 		usersAvrRating = new double[usersCount];
 		for(int i=0; i<usersCount; i++){
 			int Vi = 0;
@@ -48,6 +61,21 @@ public class Main {
 				}
 			}
 			usersAvrRating[i] = (double)Vi * (1.0 / (double)count);
+		}
+		
+		// Predikált értékek kiszámítása minden user-film párosra
+		for(int i=0; i<usersCount; i++){
+			for(int j=0; j<movieCount; j++){
+				if(predicateR[i][j]==0){
+					double sum = 0;
+					for(int k=0; k<usersCount; k++){
+						if(k != i){
+							sum += PearsonCorr(i, k)*(R[k][j]-usersAvrRating[k]);
+						}
+					}
+					predicateR[i][j]=usersAvrRating[i]+sum;
+				}
+			}
 		}
 		
 		/*
@@ -70,24 +98,30 @@ public class Main {
 			System.out.println(inputRatings[i][0] + "\t" + inputRatings[i][1] + "\t" + inputRatings[i][2]);
 		}*/
 		
+		for(int i=0; i<usersCount; i++){
+			for(int j=0; j<movieCount; j++){
+				System.out.print(predicateR[i][j] + "\t");
+			}
+			System.out.print("\n");
+		}
+		
 		br.close();
 	}
 	
 	static double PearsonCorr(int a, int i){
-		
 		double szamlalo = 0; 
 		double nevezo = 0;
 		double x=0, y = 0;
 		for(int j=0; j<movieCount; j++){
-			szamlalo += ((double)R[a][j]-usersAvrRating[a]) * ((double)R[i][j]-usersAvrRating[i]);
-			
-			x += Squared((double)R[a][j]-usersAvrRating[a]);
-			y += Squared((double)R[i][j]-usersAvrRating[i]);
+			if(R[a][j] > 0 && R[i][j] > 0){
+				szamlalo += ((double)R[a][j]-usersAvrRating[a]) * ((double)R[i][j]-usersAvrRating[i]);
+				x += Squared((double)R[a][j]-usersAvrRating[a]);
+				y += Squared((double)R[i][j]-usersAvrRating[i]);
+			}
 		}
-		
-		//TODO sqrt on x*y!!
-		nevezo = x*y;
-		
+		if(x*y<=0)
+			return 0.0;
+		nevezo = Math.sqrt(x*y);
 		return szamlalo/nevezo;
 	}
 	
