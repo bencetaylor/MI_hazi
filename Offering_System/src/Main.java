@@ -60,20 +60,22 @@ public class Main {
 					count++;
 				}
 			}
-			usersAvrRating[i] = (double)Vi * (1.0 / (double)count);
+			usersAvrRating[i] = (double)Vi / (double)count;
 		}
 		
 		// Predikált értékek kiszámítása minden user-film párosra
 		for(int i=0; i<usersCount; i++){
 			for(int j=0; j<movieCount; j++){
 				if(predicateR[i][j]==0){
+					// Ha még nincs érték, kiértékeljük 
 					double sum = 0;
 					for(int k=0; k<usersCount; k++){
-						if(k != i){
+						if(R[k][j] != 0){
 							sum += PearsonCorr(i, k)*(R[k][j]-usersAvrRating[k]);
 						}
 					}
-					predicateR[i][j]=usersAvrRating[i]+sum;
+					//System.out.println(sum);
+					predicateR[i][j]=usersAvrRating[i]+0.1*sum;
 				}
 			}
 		}
@@ -97,6 +99,7 @@ public class Main {
 		/*for(int i=0; i<ratingCount; i++){
 			System.out.println(inputRatings[i][0] + "\t" + inputRatings[i][1] + "\t" + inputRatings[i][2]);
 		}*/
+		//System.out.println("--------------------------------------------");
 		
 		for(int i=0; i<usersCount; i++){
 			for(int j=0; j<movieCount; j++){
@@ -119,7 +122,7 @@ public class Main {
 				y += Squared((double)R[i][j]-usersAvrRating[i]);
 			}
 		}
-		if(x*y<=0)
+		if(x*y<=0.0)
 			return 0.0;
 		nevezo = Math.sqrt(x*y);
 		return szamlalo/nevezo;
